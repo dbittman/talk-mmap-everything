@@ -1,0 +1,76 @@
+.pl 24
+.ll 80
+.lt 80
+.sp 6
+
+.ad c
+Tour of SeaOS
+.br
+or: how I learned to stop worrying and love kernel programming
+.sp 4
+.br
+Daniel Bittman
+.br
+SSRC - UC Santa Cruz - 2016
+
+
+
+
+.bp
+.tl ||Wait, what's going on here?||
+\l'60'
+
+.bp
+.tl ||Wait, what's going on here?||
+\l'60'
+.sp 8
+This is running on SeaOS!
+.br
+.sp 2
+\&...in an emulator.
+
+.sp 4
+\&...using troff and less for formatting.
+
+
+
+
+
+
+.bp
+.tl ''SeaOS is SIMPLE''
+\l'60'
+.sp
+.TS
+center allbox tab(@);
+rbrb
+rr
+rr
+rr.
+Kernel@Lines of Code
+Linux@1,000,000
+FreeBSD@1,000,000
+SeaOS@12,000
+.TE
+.sp 5
+.ad c
+(this excludes drivers and networking code)
+.bp
+
+.in 10
+.HIGHLIGHT
+while(true) {
+    fd_set readers;
+    FD_ZERO(&readers);
+    for(int i=0;i<MAX_TERMS;i++) {
+        FD_SET(ptys[i]->masterfd, &readers);
+    }
+    FD_SET(keyfd, &readers);
+
+    int r = select(FD_SETSIZE, &readers, NULL, NULL, NULL);
+    . . .
+}
+.HIGHLIGHT
+
+.bp
+And back to normal.
