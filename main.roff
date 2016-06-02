@@ -4,14 +4,17 @@
 .sp 6
 
 .ad c
-Tour of SeaOS
+SeaOS, an Operating System
 .br
-or: how I learned to stop worrying and love kernel programming
+or: how I learned to stop worrying and love mmap(2)
 .sp 4
 .br
 Daniel Bittman
 .br
 SSRC - UC Santa Cruz - 2016
+.br
+.sp 2
+USENIX Vail Computer Elements Workshop 2016
 
 
 
@@ -33,7 +36,13 @@ This is running on SeaOS!
 \&...using troff and less for formatting.
 
 
-
+.bp
+.tl ''SeaOS is for modern systems''
+\l'60'
+.sp 10
+64-bit, mmu required.
+.sp
+Supports SMP
 
 
 
@@ -55,22 +64,64 @@ SeaOS@12,000
 .sp 5
 .ad c
 (this excludes drivers and networking code)
-.bp
-
-.in 10
-.HIGHLIGHT
-while(true) {
-    fd_set readers;
-    FD_ZERO(&readers);
-    for(int i=0;i<MAX_TERMS;i++) {
-        FD_SET(ptys[i]->masterfd, &readers);
-    }
-    FD_SET(keyfd, &readers);
-
-    int r = select(FD_SETSIZE, &readers, NULL, NULL, NULL);
-    . . .
-}
-.HIGHLIGHT
 
 .bp
-And back to normal.
+.tl ''My favorite syscall: mmap''
+\l'60'
+
+.ad l
+.in +2.6i
+.sp 4
+___  ______  ___  ___  ______
+.br
+|  \\/  ||  \\/  | / _ \\ | ___ \\
+.br
+| .  . || .  . |/ /_\\ \\| |_/ /
+.br
+| |\\/| || |\\/| ||  _  ||  __/
+.br
+| |  | || |  | || | | || |
+.br
+\\_|  |_/\\_|  |_/\\_| |_/\\_|
+.br
+
+.in -2.6i
+.ad c
+
+.sp 3
+mmap is really cool.
+
+.bp
+.tl ''What can you do with mmap in SeaOS?''
+\l'60'
+.sp 5
+.ad l
+.in +1i
+The normal stuff:
+.sp
+.in +0.5i
+- Userspace can call mmap(3) and friends.
+.sp
+- ELF files are loaded by mmap'ing program headers.
+.sp 2
+.in -0.5i
+The less-normal, but still not that abnormal stuff:
+.sp
+.in +0.5i
+- Device memory can be mmap'ed (/dev/vga).
+
+.in 0
+.ad c
+.bp
+.tl ''What about other UNIX system calls?''
+\l'60'
+.sp 4
+SeaOS supports calls like read, readv, write, etc.
+
+.bp
+.tl ''What about other UNIX system calls?''
+\l'60'
+.sp 4
+SeaOS supports calls like read, readv, write, etc.
+.sp 4
+\&...so can we do that with mmap?
