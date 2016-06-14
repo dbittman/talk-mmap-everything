@@ -1,0 +1,70 @@
+Intro-self
+
+Intro-seaos
+ * "This is running on SeaOS!"
+ * story
+   - started a few years ago
+   - few months ago, decided to throw out a lot of stuff and write it again
+   - learning experience!
+   - used seaos to break out of a VM security monitor
+ * demo
+   - talk about terminal emulator
+ * design choices
+ * seaos is simple
+ * seaos is small
+ * seaos is mostly portable
+
+More on design choices:
+ * Simplicity is a virtue, this allows me to do interesting things quite easily, especially since I know the code base...
+   - assume 64bit, assume MMU, assume SMP
+     . on that... barrelfish, multikernel, etc.
+ * Take the threaded idea to heart! Everything is a thread. Very Mach. Spawning a thread must be _fast_ (terminal emulator is threaded).
+ * Not aiming for complete compliance with POSIX.
+ * page cache, etc.
+
+MMAP:
+ * mmap is my favorite system call.
+ * use mmap to do a lot of things, of course, MAP_ANON and file mappings
+ * currently used by the terminal emulator to access the screen (/dev/vga)
+ * so, I like this idea of a generic way to map _things_. So, I want to build
+   a system around that idea.
+   - Useful in NVRAM systems!
+   - First plan: networking
+     . I currently don't have a networking stack. So, I would like to implement one.
+     . Obviously want to avoid >zero-copy.
+     . Most obvious method is to have the NIC DMA its data directly into a mmap'd buffer
+       so that a userland process can get access to it immediately. Some kind of synchro is
+       needed for that (or just poll()).
+     . Shared model: all processes share the buffer from the NIC. They have to coordinate on
+       reading packets. The ability for all threads to read packets it okay if you have E-E encyption.
+       Tx can be done with one buffer per process, and then switch between them somehow. Shared networking
+       state (routing tables, etc) can be read by all processes (via a library which does proper sync techniques)
+       and written to by trusted privaleged processes.
+     . Shared, open vswitch... each process gets its own virtual NIC, and have the DPDK stuff deal with that.
+       This way you still do the mmap thing and can just read packets.
+     . Switched in userspace - no longer zero-copy. Advantage: don't need a trust model. A designated userspace
+       process has mmap'ed the NIC, and has shared memory with each client process that wants to do networking.
+       In this model, the kernel is completely unaware that networking is a thing. This has an advantage: an attack
+       on the networking stack no longer compromises the kernel. Plus, you've also now made the kernel simpler, easier
+       to debug, reduced the attack surface, and made it so the kernel doesn't have to waste its time inspecting packets
+       and processing them.
+
+     . Advantages of both: processes can now read packet data without having to make systemcalls.
+       packet recv -> DMA transfer -> interrupt -> wake up thread(s) -> threads read data. You may have something like
+       futex to wait, or just poll, select, etc.
+    - MMAP MORE THINGS!
+      . The rest of unix system calls? Start with read, write, readv, etc. This can be done in terms of mmap. The most
+        convenient way would be to just mmap to some region and then copy. You may be able to optimize if the read buffer
+        is page-aligned and long enough, you could just re-map the region of memory that the buffer is pointing to and avoid
+        the copy entirely.
+      . writing is more tricky, since you can't extend the size of an object with current mmap... so maybe you need a syscall there?
+        but, if you're not writing sequentially, if you're just writing to a small area, you can mmap it once and then avoid a large
+        number of system calls. Could do the same thing for writing sequentually - ring-buffer-like.
+      . Either way, if you can get rid of these things, you are able to reduce the number of syscalls and thus the complexity of the
+        system.
+      . ....filesystem manipulation? (I should say, namespace manipulation)?
+      . Lots of devices stream data (keyboard, mouse, etc), this can be made into a ring-buffer like data structure.
+
+conclusion:
+ * Excited to work on some of this stuff... OS research is interesting and fun.
+
