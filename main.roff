@@ -4,7 +4,7 @@
 .sp 6
 
 .ad c
-SeaOS, an Operating System
+SeaOS, a Simple and Modern Operating System
 .br
 or: how I learned to stop worrying and love mmap(2)
 .sp 4
@@ -35,6 +35,34 @@ This is running on SeaOS!
 .sp 4
 \&...using troff and less for formatting.
 
+.bp
+.tl ''SeaOS is both old and new...''
+\l'60'
+.sp 6
+I've been playing around with kernel code for a while.
+.sp 3
+This particular iteration is only a few months old.
+
+
+.bp
+.tl ''Why?''
+\l'60'
+.sp 6
+.ad l
+.in +1.5i
+- Learning experience!
+.sp
+- Useful for research
+.sp
+.in +0.5i
+- Demonstrated a VM security monitor breakout in 2015
+.in -2i
+.ad c
+
+
+
+
+
 
 .bp
 .tl ''SeaOS is for modern systems''
@@ -43,27 +71,44 @@ This is running on SeaOS!
 64-bit, mmu required.
 .sp
 Supports SMP
+.sp
+Runs on x86_64, armv8 (aarch64)
+
+
+
+
+
+
 
 
 
 .bp
-.tl ''SeaOS is SIMPLE''
+.tl ''SeaOS is Simple''
 \l'60'
 .sp
 .TS
 center allbox tab(@);
 rbrb
 rr
-rr
 rr.
 Kernel@Lines of Code
-Linux@1,000,000
-FreeBSD@1,000,000
-SeaOS@12,000
+Linux@~1,000,000
+SeaOS@4,500
 .TE
 .sp 5
 .ad c
-(this excludes drivers and networking code)
+(this excludes drivers and fs code)
+.sp 7
+Generated using David A. Wheeler's 'SLOCCount'
+
+.bp
+.tl ''SeaOS is Portable''
+\l'60'
+.sp 6
+1800 lines of x86_64 specific code
+.sp
+1150 lines of armv8 specific code
+
 
 .bp
 .tl ''My favorite syscall: mmap''
