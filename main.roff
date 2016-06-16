@@ -2,6 +2,7 @@
 .ll 80
 .lt 80
 .sp 6
+.color 1
 
 .ad c
 SeaOS, a Simple and Modern Operating System
@@ -110,6 +111,42 @@ Generated using David A. Wheeler's 'SLOCCount'
 1150 lines of armv8 specific code
 
 
+
+
+
+
+.bp
+.tl ''Some Design Considerations''
+\l'60'
+.sp 6
+.ad l
+.in +1.5i
+\(bu _At this point_, assumming SMP.
+.sp 2
+\(bu Core kernel has minimal global shared state.
+.sp 2
+\(bu Multikernel considerations?
+.sp 2
+\(bu Make threading _low overhead_.
+.in -1.5i
+.ad c
+
+
+
+.bp
+.tl ''Unix Compatibility Layer''
+\l'60'
+.sp 6
+Currently implemented in-kernel.
+.sp
+Would like to move as much as possible into userspace...
+
+
+
+
+
+
+
 .bp
 .tl ''My favorite syscall: mmap''
 \l'60'
@@ -157,6 +194,77 @@ The less-normal, but still not that abnormal stuff:
 
 .in 0
 .ad c
+
+
+
+
+
+
+
+
+
+
+.bp
+\l'60'
+.tl ''Networking Stack''
+.sp 6
+.ll -1i
+.in 1i
+SeaOS needs a networking stack. We could just
+implement an in-kernel networking stack...
+
+
+
+.bp
+\l'60'
+.tl ''Networking Stack''
+.sp 6
+SeaOS needs a networking stack. We could just
+implement an in-kernel networking stack...
+.sp
+\&...but we've got mmap!
+.sp 2
+.ad l
+.in +1i
+
+\(bu Privaleged process does mmap to get a receive buffer
+\(bu NIC reads packets into that buffer
+\(bu ...and now packets are in userspace
+
+.in 0
+.ad c
+
+
+
+
+
+
+.bp
+.tl ''Networking in Userspace - Switching Process''
+\l'60'
+.sp 5
+.ad l
++---------------------+        +----------------+
+.br
+| [C1]... [Cn]<->[NN] |        |  [Cn]          |  . . .
+.br
++---------------------+        +----------------+
+.br
+ Packet Switcher  ^             Client n
+.br
+                  | DMA
+.br
+                  |
+.br
++---------------------+
+.br
+|   [Buffer lists...] |
+.br
++---------------------+
+.br
+ NIC
+
+
 .bp
 .tl ''What about other UNIX system calls?''
 \l'60'
