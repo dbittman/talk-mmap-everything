@@ -5,9 +5,9 @@
 .color 1
 
 .ad c
-SeaOS, a Simple and Modern Operating System
+SeaOS: A simple OS for multicore machines
 .br
-or: how I learned to stop worrying and love mmap(2)
+or: how I learned to stop worrying and love mmap
 .sp 4
 .br
 Daniel Bittman
@@ -16,8 +16,6 @@ SSRC - UC Santa Cruz - 2016
 .br
 .sp 2
 USENIX Vail Computer Elements Workshop 2016
-
-
 
 
 .bp
@@ -51,40 +49,20 @@ This particular iteration is only a few months old.
 .sp 6
 .ad l
 .in +1.5i
-- Learning experience!
+\(bu Learning experience!
 .sp
-- Useful for research
+\(bu Useful for research
 .sp
 .in +0.5i
-- Demonstrated a VM security monitor breakout in 2015
+\(bu Demonstrated a VM monitor breakout in 2015 [1]
 .in -2i
 .ad c
 
 
-
-
-
-
 .bp
-.tl ''SeaOS is for modern systems''
-\l'60'
-.sp 10
-64-bit, mmu required.
-.sp
-Supports SMP
-.sp
-Runs on x86_64, armv8 (aarch64)
-
-
-
-
-
-
-
-
-
-.bp
-.tl ''SeaOS is Simple''
+.ad c
+.in 0
+.tl ''SeaOS is simple''
 \l'60'
 .sp
 .TS
@@ -101,51 +79,54 @@ SeaOS@4,500
 (this excludes drivers and fs code)
 .sp 7
 Generated using David A. Wheeler's 'SLOCCount'
+.bp
+.tl ''SeaOS is for modern systems''
+\l'60'
+.sp 7
+.ad l
+.in +1.5i
+\(bu 64-bit, mmu required
+.sp
+\(bu Supports SMP
+.sp
+\(bu Runs on x86_64, armv8 (aarch64)
+
 
 .bp
-.tl ''SeaOS is Portable''
+.in 0
+.ad c
+.tl ''SeaOS is portable''
 \l'60'
 .sp 6
 1800 lines of x86_64 specific code
 .sp
 1150 lines of armv8 specific code
 
-
-
-
-
-
 .bp
-.tl ''Some Design Considerations''
+.tl ''Some design considerations''
 \l'60'
 .sp 6
 .ad l
 .in +1.5i
-\(bu _At this point_, assumming SMP.
+\(bu At this point, assumming SMP
 .sp 2
-\(bu Core kernel has minimal global shared state.
+\(bu Core kernel has minimal global shared state
 .sp 2
-\(bu Multikernel considerations?
+\(bu Multikernel considerations? [2]
 .sp 2
-\(bu Make threading _low overhead_.
+\(bu Can I make threading lower overhead?
 .in -1.5i
 .ad c
 
 
 
 .bp
-.tl ''Unix Compatibility Layer''
+.tl ''Unix compatibility layer''
 \l'60'
 .sp 6
 Currently implemented in-kernel.
 .sp
-Would like to move as much as possible into userspace...
-
-
-
-
-
-
+Would like to move as much of it as possible into userspace...
 
 .bp
 .tl ''My favorite syscall: mmap''
@@ -182,35 +163,26 @@ mmap is really cool.
 The normal stuff:
 .sp
 .in +0.5i
-- Userspace can call mmap(3) and friends.
+\(bu Userspace can call mmap(3) and friends
 .sp
-- ELF files are loaded by mmap'ing program headers.
+\(bu ELF files are loaded by mmap'ing program headers
 .sp 2
 .in -0.5i
-The less-normal, but still not that abnormal stuff:
+Other, more interesting stuff:
 .sp
 .in +0.5i
-- Device memory can be mmap'ed (/dev/vga).
+\(bu Device memory can be mmap'ed (/dev/vga)
 
 .in 0
 .ad c
 
-
-
-
-
-
-
-
-
-
 .bp
 \l'60'
-.tl ''Networking Stack''
+.tl ''Networking stack''
 .sp 6
 .ll -1i
 .in 1i
-SeaOS needs a networking stack. We could just
+SeaOS needs a networking stack. I could just
 implement an in-kernel networking stack...
 
 
@@ -219,47 +191,55 @@ implement an in-kernel networking stack...
 
 .bp
 \l'60'
-.tl ''Networking Stack''
+.tl ''Networking stack''
 .sp 6
 .ll -1i
 .in +1i
-SeaOS needs a networking stack. We could just
+SeaOS needs a networking stack. I could just
 implement an in-kernel networking stack...
 .sp
 \&...but we've got mmap!
 .sp 2
 .ad l
 
-\(bu Privaleged process does mmap to get a receive buffer
+\(bu Privaleged process does mmap to get a receive buffer [3]
 .sp
 \(bu NIC reads packets into that buffer
 .sp
 \(bu ...and now packets are in userspace
 
 .ad c
-
-
-
-
-
-
 .bp
 .in 0
-.tl ''Networking in Userspace - Switching Process''
+.tl ''Networking in userspace - switching process''
 .ad c
+.ll 80
 \l'60'
-.sp 5
-.in +1i
+.sp 2
+.in +2i
 .ad l
-+---------------------+        +----------------+
+
++------------------------+
 .br
-| [C1]... \m[cyan][Cn]\m[]<->\m[yellow][NN]\m[] |        |  \m[cyan][Cn]\m[]          |  . . .
+| [C1]      [other data] |
 .br
-+---------------------+        +----------------+
++------------------------+
 .br
- Packet Switcher  ^             Client n
+   |               Client
 .br
-                  | DMA
+   | (Shared mem)
+.br
+   |
+.br
++-------------------------------+
+.br
+| [C1]... [Cn] <---[Rx Packets] |
+.br
++-------------------------------+
+.br
+ Packet Switcher  ^ DMA
+.br
+                  | (Shared mem)
 .br
                   |
 .br
@@ -270,16 +250,10 @@ implement an in-kernel networking stack...
 +---------------------+
 .br
  NIC
-
-
-
-
-
-
 .bp
 .in 0
 .ad c
-.tl ''Tx Methods?''
+.tl ''Tx methods?''
 \l'60'
 .sp 5
 .in +1i
@@ -303,15 +277,13 @@ implement an in-kernel networking stack...
 .br
             NIC
 
-
-
-
-
 .bp
 .in 0
 .ad c
+.ll 80
 .tl ''Zero-copy, more sharing''
 \l'60'
+
 .sp 5
 .ad l
 .in +1i
@@ -367,17 +339,6 @@ implement an in-kernel networking stack...
 .br
 
 
-
-
-
-
-
-
-
-
-
-
-
 .bp
 .in 0
 .ad c
@@ -431,7 +392,7 @@ Playing about with lock-free and low-lock data structures and algorithms
 .bp
 .ll +1i
 .in 0
-.tl ''Conclusion - the future...''
+.tl ''Conclusion''
 \l'60'
 .sp 5
 SeaOS is a simple, portable, and easy-to-modify OS.
@@ -441,7 +402,7 @@ I plan to use SeaOS to play around with interesting things.
 The more interesting things, the better.
 
 .bp
-.tl ''Thank You!''
+.tl ''Thank you!''
 \l'60'
 .sp 5
 Daniel Bittman
@@ -452,3 +413,15 @@ dbittman.github.io
 .sp
 @danielbittman
 
+.bp
+.tl ''References''
+\l'60'
+.sp 3
+.in 1i
+.ll -1i
+
+1. DJ Capelis, Daniel Bittman. "The Hypervisor Exploit I Sat on for Five Years". PoC||GTFO 0x08, June, 2015.
+.sp
+2. Baumann, Andrew, et al. "The multikernel: a new OS architecture for scalable multicore systems." Proceedings of the ACM SIGOPS 22nd symposium on Operating systems principles. ACM, 2009.
+.sp
+3. Rizzo, Luigi. "Netmap: a novel framework for fast packet I/O." 21st USENIX Security Symposium (USENIX Security 12). 2012.
