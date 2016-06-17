@@ -214,24 +214,28 @@ SeaOS needs a networking stack. We could just
 implement an in-kernel networking stack...
 
 
+.in 0
+.ll +1i
 
 .bp
 \l'60'
 .tl ''Networking Stack''
 .sp 6
+.ll -1i
+.in +1i
 SeaOS needs a networking stack. We could just
 implement an in-kernel networking stack...
 .sp
 \&...but we've got mmap!
 .sp 2
 .ad l
-.in +1i
 
 \(bu Privaleged process does mmap to get a receive buffer
+.sp
 \(bu NIC reads packets into that buffer
+.sp
 \(bu ...and now packets are in userspace
 
-.in 0
 .ad c
 
 
@@ -240,13 +244,16 @@ implement an in-kernel networking stack...
 
 
 .bp
+.in 0
 .tl ''Networking in Userspace - Switching Process''
+.ad c
 \l'60'
 .sp 5
+.in +1i
 .ad l
 +---------------------+        +----------------+
 .br
-| [C1]... [Cn]<->[NN] |        |  [Cn]          |  . . .
+| [C1]... \m[cyan][Cn]\m[]<->\m[yellow][NN]\m[] |        |  \m[cyan][Cn]\m[]          |  . . .
 .br
 +---------------------+        +----------------+
 .br
@@ -265,7 +272,116 @@ implement an in-kernel networking stack...
  NIC
 
 
+
+
+
+
 .bp
+.in 0
+.ad c
+.tl ''Tx Methods?''
+\l'60'
+.sp 5
+.in +1i
+.ad l
+
++----------------------+     +-----------------+
+.br
+| [Tx Q]    [Net Data] |     | [Net Data (RW)] |
+.br
++----------------------+     +-----------------+
+.br
+    |            Client       Packet Switcher
+.br
+    |
+.br
+    |      +--------------+
+.br
+    +--->  | [Tx Q]...    |
+.br
+           +--------------+
+.br
+            NIC
+
+
+
+
+
+.bp
+.in 0
+.ad c
+.tl ''Zero-copy, more sharing''
+\l'60'
+.sp 5
+.ad l
+.in +1i
++---------------------+
+.br
+| [Packets]           |
+.br
++---------------------+
+.br
+     ^          Client
+.br
+     |
+.br
+     |
+.br
++---------------------+
+.br
+| [Rx Buffers]        |
+.br
++---------------------+
+.br
+ NIC
+.br
+
+
+.bp
+.in 0
+.tl ''Zero-copy, more sharing (pt. 2)''
+.ad c
+\l'60'
+.sp 5
+.ad l
+.in +1i
++----------------------------------------------+
+.br
+| [Packets]  [Shared Net Data]  [Net Library]  |
+.br
++----------------------------------------------+
+.br
+     ^                           Client
+.br
+     |
+.br
+     |
+.br
++---------------------+
+.br
+| [Rx Buffers]        |
+.br
++---------------------+
+.br
+ NIC
+.br
+
+
+
+
+
+
+
+
+
+
+
+
+
+.bp
+.in 0
+.ad c
+.ll 80
 .tl ''What about other UNIX system calls?''
 \l'60'
 .sp 4
@@ -278,3 +394,61 @@ SeaOS supports calls like read, readv, write, etc.
 SeaOS supports calls like read, readv, write, etc.
 .sp 4
 \&...so can we do that with mmap?
+
+
+.bp
+.tl ''Running UNIX on top of mmap''
+\l'60'
+.sp 5
+read(2) is easy (especially if the buffer is page-aligned)
+.sp 1
+write(2) is a bit trickier...
+.sp
+\&...or maybe mmap isn't powerful enough?
+.sp 3
+(and there's all of the filesystem manipulation system calls)
+
+
+.bp
+.tl ''Concurrency''
+\l'60'
+
+.bp
+.tl ''Concurrency''
+\l'60'
+.ll -1i
+.in +1i
+.sp 5
+Simplicity helps with reasoning about the complexities of a highly concurrent system.
+.sp 2
+Assuming SMP; allow for multikernel-like behavior
+.sp 2
+Playing about with lock-free and low-lock data structures and algorithms
+
+
+
+
+.bp
+.ll +1i
+.in 0
+.tl ''Conclusion - the future...''
+\l'60'
+.sp 5
+SeaOS is a simple, portable, and easy-to-modify OS.
+.sp 2
+I plan to use SeaOS to play around with interesting things.
+.sp
+The more interesting things, the better.
+
+.bp
+.tl ''Thank You!''
+\l'60'
+.sp 5
+Daniel Bittman
+.sp
+danielbittman1@gmail.com
+.sp
+dbittman.github.io
+.sp
+@danielbittman
+
