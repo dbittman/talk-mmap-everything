@@ -198,7 +198,7 @@ implement an in-kernel networking stack...
 SeaOS needs a networking stack. I could just
 implement an in-kernel networking stack...
 .sp
-\&...but we've got mmap!
+\&...but there's mmap!
 .sp 2
 .ad l
 
@@ -354,7 +354,7 @@ SeaOS supports calls like read, readv, write, etc.
 .sp 4
 SeaOS supports calls like read, readv, write, etc.
 .sp 4
-\&...so can we do that with mmap?
+\&...can they be implemented with mmap?
 
 
 .bp
@@ -368,7 +368,6 @@ write(2) is a bit trickier...
 \&...or maybe mmap isn't powerful enough?
 .sp 3
 (and there's all of the filesystem manipulation system calls)
-
 
 .bp
 .tl ''Concurrency''
